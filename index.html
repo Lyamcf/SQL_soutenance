@@ -343,8 +343,10 @@ select * from s2a04a.bornes_de_recharge where horaires is null;
 
                             <div class="grid-title-box">
                                 <h2 style="margin: 0;">Partie 2</h2>
-                                <h3 style="font-size: 0.6em !important;">Séparation des tables</h3>
-                               
+                                <h3
+                                    style="font-size: 0.6em !important;">Séparation
+                                    des tables</h3>
+
                             </div>
 
                             <div class="theme-lyam">
@@ -656,19 +658,23 @@ grant select on Borne to s2a03b;
                     <section>
                         <h2>Partie 3</h2>
                         <h3>Séparation par departement</h3>
-                        <p>Séparation des données en plusieurs tables pour chaque
+                        <p>Séparation des données en plusieurs tables pour
+                            chaque
                             département</p>
-                        </section>
-                    <section data-background-image="image/fond/Adrien_Fond.png" data-background-size="cover" class="theme-adrien">
-    <div class="grid-6etudiants">
-        
-        <div class="grid-title-box">
-            <h2 style="margin: 0;">Partie 3</h2>
-            <h3 style="font-size: 0.6em !important;">Séparation des tables en départements</h3>
-        </div>
+                    </section>
+                    <section data-background-image="image/fond/Adrien_Fond.png"
+                        data-background-size="cover" class="theme-adrien">
+                        <div class="grid-6etudiants">
 
-        <div class="theme-adrien">
-            <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
+                            <div class="grid-title-box">
+                                <h2 style="margin: 0;">Partie 3</h2>
+                                <h3
+                                    style="font-size: 0.6em !important;">Séparation
+                                    des tables en départements</h3>
+                            </div>
+
+                            <div class="theme-adrien">
+                                <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
 -- Adrien : Table Loire-Atlantique
 create table commune_LA
     as
@@ -685,10 +691,10 @@ CREATE table station_La as
 create table borne_LA as select * from borne where station in (select num_station from station_LA);
 
             </code></pre>
-        </div>
+                            </div>
 
-        <div class="theme-julien">
-            <pre><code class="theme-julien" data-trim data-noescape data-language="sql">
+                            <div class="theme-julien">
+                                <pre><code class="theme-julien" data-trim data-noescape data-language="sql">
 -- Julien : Table Maine-et-Loire
 create table communeML as select c.code_insee, c.libelle, c.departement_code from s2a14b.commune c, s2a14b.departement d where c.departement_code=d.code and d.libelle = 'Maine-et-Loire';
 
@@ -698,10 +704,10 @@ create table borneML as select * from s2a04a.borne where station in (select num_
 
  
             </code></pre>
-        </div>
+                            </div>
 
-        <div class="theme-kelian">
-            <pre><code class="theme-kelian" data-trim data-noescape data-language="sql">
+                            <div class="theme-kelian">
+                                <pre><code class="theme-kelian" data-trim data-noescape data-language="sql">
 -- Kelian : Table sarthe
 CREATE TABLE commune_sa
     AS
@@ -728,10 +734,10 @@ CREATE TABLE borne_sa AS
         b.station IN (SELECT num_station FROM station_sa);
     
             </code></pre>
-        </div>
+                            </div>
 
-        <div class="theme-mathys">
-            <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
+                            <div class="theme-mathys">
+                                <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
 -- Mathys : Table Mayenne
 create table communeMAY as
     select c.code_insee, c.libelle, c.departement_code from s2a14b.commune c, s2a14b.departement d
@@ -755,10 +761,10 @@ create table borneMAY as
     where station in (select num_station from stationMAY);
 
             </code></pre>
-        </div>
+                            </div>
 
-        <div class="theme-lyam">
-            <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
+                            <div class="theme-lyam">
+                                <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
 -- Lyam : Table Vendée
 CREATE TABLE communeVe (
 code_insee_commune NUMBER(5) CONSTRAINT cle_inse_vendee PRIMARY KEY,
@@ -775,36 +781,51 @@ CREATE TABLE stationVe as select * From station where code_insee_commune in (sel
 CREATE TABLE borneVe as select * From s2a04a.borne where station in (select num_station from stationVe);
 
             </code></pre>
-        </div>
+                            </div>
 
+                        </div>
+                    </section>
 
-    </div>
-</section>
-                    
                 </section>
                 <section>
-    <section>
-        <h2>Partie 4</h2>
-        <h3>Interrogation de la base</h3>
-        <p>Analyses statistiques et répartition des données par département.</p>
-    </section>
+                    <section>
+                        <h2>Partie 4</h2>
+                        <h3>Interrogation de la base</h3>
+                        <p>Analyses statistiques et répartition des données par
+                            département.</p>
+                    </section>
 
-    <section data-background-image="image/fond/Adrien_Fond.png" data-background-size="cover" class="theme-adrien">
-        <div class="grid-4etudiants">
-            
-            <div class="grid-title-box">
-                <h2 style="margin: 0; font-size: 0.8em !important;">Partie 4</h2>
-                <ul style="font-size: 0.35em; color: #bc8cf2; list-style-type: none; padding: 0; text-align: left;">
-                    <li> <h3 style="font-size: 0.9em !important;">• Lyam : Affichez pour chaque opérateur le nombre de prisespar département.</h3></li>
-                    <h3></h3>
-                    <li> <h3 style="font-size: 0.9em !important;">• Adrien : Affichez pour chaque département  la répartition des prises. </h3></li>
-                    <h3></h3>
-                    <li> <h3 style="font-size: 0.9em !important;">• Mathys : Le nombre d'amenageur different par departement</h3></li>
-                </ul>
-            </div>
+                    <section data-background-image="image/fond/Adrien_Fond.png"
+                        data-background-size="cover" class="theme-adrien">
+                        <div class="grid-4etudiants">
 
-            <div class="theme-lyam">
-                <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
+                            <div class="grid-title-box">
+                                <h2
+                                    style="margin: 0; font-size: 0.8em !important;">Partie
+                                    4</h2>
+                                <ul
+                                    style="font-size: 0.35em; color: #bc8cf2; list-style-type: none; padding: 0; text-align: left;">
+                                    <li> <h3
+                                            style="font-size: 0.9em !important;">•
+                                            Lyam : Affichez pour chaque
+                                            opérateur le nombre de prisespar
+                                            département.</h3></li>
+                                    <h3></h3>
+                                    <li> <h3
+                                            style="font-size: 0.9em !important;">•
+                                            Adrien : Affichez pour chaque
+                                            département la répartition des
+                                            prises. </h3></li>
+                                    <h3></h3>
+                                    <li> <h3
+                                            style="font-size: 0.9em !important;">•
+                                            Mathys : Le nombre d'amenageur
+                                            different par departement</h3></li>
+                                </ul>
+                            </div>
+
+                            <div class="theme-lyam">
+                                <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
 -- Lyam : Question 1 : Affichez pour chaque opérateur le nombre de prises(points de charge) par département.
 
 
@@ -818,10 +839,10 @@ SELECT
 FROM 
     s2a06b.operateurs o;
                 </code></pre>
-            </div>
+                            </div>
 
-            <div class="theme-adrien">
-                <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
+                            <div class="theme-adrien">
+                                <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
 -- Adrien : Question 3: Affichez pour chaque département  la répartition des prises. C’est à dire en fonction des valeurs de la puissance nominale(22, 50, 43, 60, 120,….). Dans ce cas vous prenez les 15 meilleurs prises qui sont installées. 
 
 
@@ -869,10 +890,10 @@ order by PUISSANCE_NOMINALE desc
 FETCH FIRST 15 ROWS ONLY;
 
                 </code></pre>
-            </div>
+                            </div>
 
-            <div class="theme-mathys">
-                <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
+                            <div class="theme-mathys">
+                                <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
 -- Mathys : Question 10 : le nombre d'amenageur different par departement
 
 
@@ -921,72 +942,292 @@ on a.num_amenageur = b.amenageur
 group by  d.libelle
 order by nb_amenageur_dep desc;
                 </code></pre>
-            </div>
+                            </div>
 
-        </div>
-    </section>
-    <section data-background-image="image/fond/Adrien_Fond.png" data-background-size="cover" class="theme-adrien">
-    <div class="grid-4etudiants">
-        
-        
-        <div class="grid-title-box">
-                <h2 style="margin: 0; font-size: 0.8em !important;">Partie 4</h2>
-                <ul style="font-size: 0.35em; color: #bc8cf2; list-style-type: none; padding: 0; text-align: left;">
-                    <li> <h3 style="font-size: 0.9em !important;">• Lyam : Affichez pour chaque opérateur le nombre de prisespar département.</h3></li>
-                    <h3></h3>
-                    <li> <h3 style="font-size: 0.9em !important;">• Adrien : Affichez pour chaque département  la répartition des prises. </h3></li>
-                    <h3></h3>
-                    <li> <h3 style="font-size: 0.9em !important;">• Mathys : Le nombre d'amenageur different par departement</h3></li>
-                </ul>
-            </div>
+                        </div>
+                    </section>
+                    <section data-background-image="image/fond/Adrien_Fond.png"
+                        data-background-size="cover" class="theme-adrien">
+                        <div class="grid-4etudiants">
 
-        <div class="q-card img-card">
-            <span class="q-tag"></span>
-            <img src="image/Graphique/Lyam_1.png" alt="Description de l'image 1" class="grid-image">
-        </div>
+                            <div class="grid-title-box">
+                                <h2
+                                    style="margin: 0; font-size: 0.8em !important;">Partie
+                                    4</h2>
+                                <ul
+                                    style="font-size: 0.35em; color: #bc8cf2; list-style-type: none; padding: 0; text-align: left;">
+                                    <li> <h3
+                                            style="font-size: 0.9em !important;">•
+                                            Lyam : Affichez pour chaque
+                                            opérateur le nombre de prisespar
+                                            département.</h3></li>
+                                    <h3></h3>
+                                    <li> <h3
+                                            style="font-size: 0.9em !important;">•
+                                            Adrien : Affichez pour chaque
+                                            département la répartition des
+                                            prises. </h3></li>
+                                    <h3></h3>
+                                    <li> <h3
+                                            style="font-size: 0.9em !important;">•
+                                            Mathys : Le nombre d'amenageur
+                                            different par departement</h3></li>
+                                </ul>
+                            </div>
 
-        <div class="q-card img-card">
-            <span class="q-tag"></span>
-            <img src="image/Graphique/Adrien_3.png" alt="Description de l'image 2" class="grid-image">
-        </div>
+                            <div class="q-card img-card">
+                                <span class="q-tag"></span>
+                                <img src="image/Graphique/Lyam_1.png"
+                                    alt="Description de l'image 1"
+                                    class="grid-image">
+                            </div>
 
-        <div class="q-card img-card">
-            <span class="q-tag"></span>
-            <img src="image/Graphique/Mathys_10_2.png" alt="Description de l'image 3" class="grid-image">
-        </div>
+                            <div class="q-card img-card">
+                                <span class="q-tag"></span>
+                                <img src="image/Graphique/Adrien_3.png"
+                                    alt="Description de l'image 2"
+                                    class="grid-image">
+                            </div>
 
-    </div>
-</section>
-</section>
-<section>
-    <section>
-        <h2>Partie 5</h2>
-        <h3>Requette par des vues </h3>
-        <p>idem que la question precedente mais chacun fait les requette avec des vu sur tous </p>
-    </section>
-    <section data-background-image="image/fond/Adrien_Fond.png" data-background-size="cover" class="theme-adrien">
-        <h2>Partie 5</h2>
-        <h3>Requette par des vues </h3>
-       
-        <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
+                            <div class="q-card img-card">
+                                <span class="q-tag"></span>
+                                <img src="image/Graphique/Mathys_10_2.png"
+                                    alt="Description de l'image 3"
+                                    class="grid-image">
+                            </div>
+
+                        </div>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2>Partie 5</h2>
+                        <h3>Requette par des vues </h3>
+                        <p>idem que la question precedente mais chacun fait les
+                            requette avec des vu sur tous </p>
+                    </section>
+                    <section data-background-image="image/fond/Adrien_Fond.png"
+                        data-background-size="cover" class="theme-adrien">
+                        <h2>Partie 5</h2>
+                        <h3>Requette par des vues </h3>
+
+                        <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
             --
 
 
         </code></pre></section>
-</section>
-<section>
-    <h2>Conclusion</h2>
-    <p>Conclusion du projet et l'apport pour tous</p>
-</section>
 
-                </div>
+                </section>
+                <section>
+                    <section>
+                        <h2>Partie 6</h2>
+                        <h3>Une nouvelle Base de donnée</h3>
+                        <p>Choix d'une seconde base de données </p>
+                    </section>
+                    <section>
+                        <h2>Partie 6</h2>
+                        <h3>Une nouvelle Base de donnée</h3>
+                        <p>Shema conceptuel </p>
+                        <img src="image/MCD2.png"
+                            alt="Schéma conceptuel de la nouvelle base de données"
+                            style="width: 60%; height: auto;">
+                    </section>
+                    <section data-background-image="image/fond/Adrien_Fond.png"
+                        data-background-size="cover" class="theme-adrien">
+                        <div class="grid-6etudiants">
+                            <div class="grid-title-box">
+                                <h2 style="margin: 0;">Partie 6</h2>
+                                <h3 style="font-size: 0.6em !important;">Une
+                                    nouvelle base de données</h3>
+                            </div>
+                            <div class="theme-adrien">
+                                <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
+-- Adrien : création de la table EPCI_commune
+
+CREATE table EPCI_commune (
+  code_epci NUMBER GENERATED ALWAYS AS IDENTITY (start with 1 increment by 1) primary key,
+  nom_epci              VARCHAR2(128),     
+  epci                  VARCHAR2(128)
+);
+
+
+INSERT INTO EPCI_commune (nom_epci, epci)
+SELECT DISTINCT
+    p.nom_epci,
+    p.epci
+FROM s2a14b.population_anne p;
+
+
+grant select on EPCI_commune to s2a14b;
+grant references on EPCI_commune to s2a06b;
+
+</code></pre>
+                            </div>
+                            <div class="theme-julien">
+                                <pre><code class="theme-julien" data-trim data-noescape data-language="sql">
+-- Julien : création de la table commune, et table population
+create table Population as select id_commune, population, annee from s2a14b.population_anne;
+
+alter table Population
+add constraint FK_population_commune foreign key (id_commune) references commune(num_commune);
+
+grant select on population to collegue2;
+grant select on commune to collegue2;
+
+create table commune
+(
+    num_commune number generated always as identity primary key,
+    code_insee number(5),
+    commune varchar(128),
+    typologie varchar(128),
+    code_epci number(5),
+    code_departement number(2)
+);
+
+drop table commune;
+
+select * from commune;
+
+insert into commune (code_insee, commune, typologie, code_epci, code_departement)
+select distinct
+    p.insee,
+    p.commune,
+    p.typologie,
+    p.code_epci,
+    p.code_departement
+from s2a14b.population_anne p;
+
+alter table commune
+add constraint FK_commune_EPCI foreign key (code_epci) references s2a04a.epci_commune (code_epci);
+
+alter table commune
+add constraint FK_commune_departement foreign key (code_departement) references s2a05a.departement (code);
+</code></pre>
+                            </div>
+                            <div class="theme-lyam">
+                                <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
+-- Lyam : import de la table et mise a jour des données et fusion des table reer
+
+UPDATE population_anne
+set code_departement = '44'
+where insee like '44%';
+
+UPDATE population_anne
+set code_departement = '85'
+where insee like '85%';
+
+UPDATE population_anne
+set code_departement = '49'
+where insee like '49%';
+
+UPDATE population_anne
+set code_departement = '53'
+where insee like '53%';
+
+
+create role partage_population ;
+grant select on population_anne to partage_population;
+grant partage_population to s2a04a,s2a03b,s2a06b,s2a05a;
+grant references on population_anne to s2a03b;
+
+
+
+Alter Table population_anne 
+ADD code_epci Number(5);
+
+Alter Table population_anne 
+ADD Id_commune Number(5);
+
+
+Update population_anne p
+set p.code_epci = (
+    SELECT code_epci
+    FROM s2a04a.epci_commune e
+    WHERE e.nom_epci = p.nom_epci 
+      AND e.epci = p.epci
+      AND ROWNUM = 1 -- Force la récupération d'une seule ligne
+)
+WHERE EXISTS (
+    SELECT 1 
+    FROM s2a04a.epci_commune e
+    WHERE e.nom_epci = p.nom_epci 
+      AND e.epci = p.epci
+);
+
+Update population_anne p
+set p.Id_commune = (
+    SELECT Id_commune
+    FROM s2a06b.commune e
+    WHERE e.commune = p.commune 
+      AND e.code_insee = p.insee
+      AND e.TYpologie = p.TYpologie
+      AND ROWNUM = 1 -- Force la récupération d'une seule ligne
+)
+WHERE EXISTS (
+    SELECT 1 
+    FROM s2a06b.commune e
+    WHERE e.commune = p.commune 
+      AND e.code_insee = p.insee
+      AND e.TYpologie = p.TYpologie
+);
+commit;
+
+
+</code></pre>
+                            </div>
+                            <div class="theme-kelian">
+                                <pre><code class="theme-kelian" data-trim data-noescape data-language="sql">
+
+-- Kelian : création de la table departement
+CREATE TABLE departement (
+    code        NUMBER(2, 0) PRIMARY KEY,
+    region_code NUMBER(2, 0)
+        REFERENCES s2a03b.region ( code_region )
+);
+
+INSERT INTO departement (
+    code,
+    region_code
+)
+    SELECT
+        DISTINCT code_departement,
+        code_region
+    FROM
+        s2a14b.population_anne;
+</code></pre>
+                            </div>
+                            <div class="theme-mathys">
+                                <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
+-- Mathys : Table Region
+
+create table Region as select distinct
+    region, code_region from s2a14b.population_anne;
+
+alter table region
+add constraint pk_region primary key (code_region);
+
+grant references on Region to s2a05a; 
+
+
+drop table region;
+</code></pre>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+                <section>
+                    <h2>Conclusion</h2>
+                    <p>Conclusion du projet et l'apport pour tous</p>
+                </section>
+
             </div>
+        </div>
 
-            <!-- Scripts Reveal.js -->
-            <script src="reveal.js-master/dist/reveal.js"></script>
-            <script src="reveal.js-master/dist/plugin/highlight.js"></script>
+        <!-- Scripts Reveal.js -->
+        <script src="reveal.js-master/dist/reveal.js"></script>
+        <script src="reveal.js-master/dist/plugin/highlight.js"></script>
 
-            <script>
+        <script>
         Reveal.initialize({
             hash: true,
             transition: 'convex',
@@ -1006,5 +1247,5 @@ order by nb_amenageur_dep desc;
         });
     </script>
 
-        </body>
-    </html>
+    </body>
+</html>

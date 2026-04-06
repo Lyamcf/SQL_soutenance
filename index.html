@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SAÉ BD – Bornes de recharge</title>
+
+        <!-- Reveal.js styles -->
+        <link rel="stylesheet" href="reveal.js-master/dist/reveal.css">
+        <link rel="stylesheet" href="reveal.js-master/dist/theme/dracula.css">
+        <link rel="stylesheet"
+            href="reveal.js-master/dist/plugin/highlight/atom-one-dark-reasonable.min.css">
+
+        <!-- Styles personnalisés -->
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+        <!-- Vague décorative en bas de page -->
+        <div class="wave-container">
+            <svg viewBox="0 24 150 28" preserveAspectRatio="none"
+                shape-rendering="auto"
+                style="width:100%; height:100%;">
+                <defs>
+                    <path id="gentle-wave"
+                        d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                </defs>
+                <g class="waves">
+                    <use xlink:href="#gentle-wave" x="48" y="0"
+                        fill="rgba(138, 43, 226, 0.3)" />
+                    <use xlink:href="#gentle-wave" x="48" y="7"
+                        fill="rgba(138, 43, 226, 0.1)" />
+                </g>
+            </svg>
+        </div>
+
+        <!-- Présentation Reveal.js -->
+        <div class="reveal">
+            <div class="slides">
+
+                <!-- Slide 1 : Titre -->
+                <section data-transition="zoom">
+                    <h1>SAE BD – Soutenance</h1>
+                    <p style="color: #bc8cf2;">Présentation du groupe de
+                        projet</p>
+                </section>
+
+                <!-- Slide 2 : Partie 1 – Mise à jour de la base -->
+                <section>
+                    <section>
+                        <h2>Partie 1</h2>
+                        <h3>Mise à jour de la base</h3>
+                        <p>Nettoyage des valeurs NULL et correction des codes
+                            INSEE erronés.</p>
+                    </section>
+
+                    <section data-background-image="image/fond/Adrien_Fond.png"
+                        data-background-size="cover"
+                        class="theme-adrien">
+                        <h2>Accès à la modification de la table selon les
+                            colonnes</h2>
+                        <h3>Requêtes SQL</h3>
+
+                        <div
+                            class="code-etudiant"><pre><code  data-trim data-noescape data-language="sql">
+-- Droits de Kelian (s2a05a)
+GRANT SELECT,
+      UPDATE (
+          TELEPHONE_OPERATEUR,
+          NOM_ENSEIGNE,
+          NOM_STATION,
+          IMPLANTATION_STATION
+      )
+ON bornes_de_recharge TO s2a05a;
+
+-- Droits de Julien (s2a06b)
+GRANT SELECT,
+      UPDATE (
+          ADRESSE_STATION,
+          CODE_INSEE_COMMUNE,
+          NOMBRE_POINTS_DE_CHARGE,
+          PUISSANCE_NOMINALE
+      )
+ON bornes_de_recharge TO s2a06b;
+
+-- Droits de Mathys (s2a03b)
+GRANT SELECT,
+      UPDATE (
+          PAIEMENT_ACTE,
+          PAIEMENT_CB,
+          PAIEMENT_AUTRE,
+          HORAIRES
+      )
+ON bornes_de_recharge TO s2a03b;
+
+-- Droits de Lyam (s2a14b)
+GRANT SELECT,
+      UPDATE (
+          DATE_MISE_EN_SERVICE,
+          DATE_DE_MISE_À_JOUR,
+          LIBELLE_REGION,
+          CODE_REGION,
+          LIBELLE_DEPARTEMENT,
+          LIBELLE_COMMUNE,
+          TRANCHE_PUISSANCE,
+          NOM_OPERATEUR
+      )
+ON bornes_de_recharge TO s2a14b;
+                    </code></pre></div>
+                    </section>
+
+                    <!-- Slide grille 2×2 : un bloc de code par étudiant -->
+                    <section data-background-image="image/fond/Adrien_Fond.png"
+                        data-background-size="cover"
+                        class="theme-adrien"
+                        width="100%"
+                        height="100%">
+                        <h2>Mise à jour de chacun</h2>
+
+                        <div class="grid-4etudiants">
+
+                            <!-- julien — coin haut gauche -->
+                            <div>
+                                <pre><code class="theme-julien" data-trim data-noescape data-language="sql">
+
+--julien : s2a06b 
+--adresse_station, code_insee_commune, nombre_points_de_charge, puissance_nominale
+update s2a04a.bornes_de_recharge b 
+set b.code_insee_commune = 
+    (select co.code_insee 
+    from basetd.commune co 
+    where co.nom_commune = b.libelle_commune and b.LIBELLE_DEPARTEMENT = co.nomdep) 
+where b.code_insee_commune is null 
+and exists 
+    (select 1 from basetd.commune co 
+    where co.nom_commune = b.libelle_commune);
+    
+commit;
+
+
+UPDATE s2a04a.bornes_de_recharge b
+SET b.code_insee_commune = '85207'
+WHERE b.libelle_commune =  'Saint-Denis-du-Payré' AND b.code_insee_commune IS NULL;
+
+UPDATE s2a04a.bornes_de_recharge b
+SET b.code_insee_commune = '85001'
+WHERE b.libelle_commune like '%Aiguillon-la-Presqu%' AND b.code_insee_commune IS NULL;
+
+UPDATE s2a04a.bornes_de_recharge b
+SET b.code_insee_commune = '72052'
+WHERE UPPER(b.libelle_commune) LIKE '%CHAHAIGNES%' AND b.code_insee_commune IS NULL;
+
+UPDATE s2a04a.bornes_de_recharge b
+set b.code_insee_commune = '85083'
+WHERE b.libelle_commune like '%Épine' AND b.code_insee_commune IS NULL;
+
+UPDATE s2a04a.bornes_de_recharge b
+set b.code_insee_commune = '72006'
+WHERE b.libelle_commune = 'Arçonnay' AND b.code_insee_commune IS NULL;
+
+UPDATE s2a04a.bornes_de_recharge b
+SET b.code_insee_commune = '37098'
+WHERE b.libelle_commune like 'Saint-Germain-d%' AND b.code_insee_commune IS NULL;
+
+UPDATE s2a04a.bornes_de_recharge b
+SET b.code_insee_commune = '72173'
+WHERE UPPER(b.libelle_commune) LIKE '%LUCEAU%' AND b.code_insee_commune IS NULL;
+
+commit;
+
+                            </code></pre>
+                            </div>
+
+                            <!-- Lyam — coin haut droit -->
+                            <div>
+                                <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
+
+--Lyam : s2a14b
+
+--colonne de DATE_MISE_EN_SERVICE
+select * from s2a04a.bornes_de_recharge where DATE_MISE_EN_SERVICE is null  ;
+--DATE_MISE_EN_SERVICE active a la date d'aujourd'hui
+
+Update s2a04a.bornes_de_recharge
+SET DATE_MISE_EN_SERVICE = '2026-03-20'
+where DATE_MISE_EN_SERVICE is null;
+commit;
+
+-- colonne DATE_DE_Mise_à_jour
+
+select * from s2a04a.bornes_de_recharge where DATE_DE_Mise_à_jour is null  ;
+
+-- aucun null
+
+
+-- colonne LIBELLE_REGION
+
+select * from s2a04a.bornes_de_recharge where LIBELLE_REGION is null  ;
+
+-- aucun null
+
+-- colonne CODE_REGION
+
+select * from s2a04a.bornes_de_recharge where CODE_REGION is null  ;
+
+-- aucun null
+
+
+
+-- colonne  LIBELLE_DEPARTEMENT 
+
+select * from s2a04a.bornes_de_recharge where LIBELLE_DEPARTEMENT is null  ;
+
+-- aucun null
+
+
+
+-- colonne  LIBELLE_COMMUNE 
+
+select * from s2a04a.bornes_de_recharge where LIBELLE_COMMUNE is null  ;
+
+-- aucun null
+
+
+-- colonne  TRANCHE_PUISSANCE 
+
+select * from s2a04a.bornes_de_recharge where TRANCHE_PUISSANCE is null  ;
+
+-- aucun null
+
+
+-- colonne  NOM_OPERATEUR 
+
+select * from s2a04a.bornes_de_recharge where NOM_OPERATEUR is null  ;
+
+Update s2a04a.bornes_de_recharge
+SET NOM_OPERATEUR = 'Jeffrénergie'
+where NOM_OPERATEUR is null;
+commit;
+
+
+--Mathys : s2a03b
+--aucun null
+select * from s2a04a.bornes_de_recharge where paiement_autre is null;
+select * from s2a04a.bornes_de_recharge where paiement_cb is null;
+
+update  s2a04a.bornes_de_recharge  set paiement_cb='false'
+    where  paiement_cb  is null;
+    commit;
+
+update  s2a04a.bornes_de_recharge  set paiement_autre='true'
+    where  paiement_autre  is null;
+    commit;
+    
+select * from s2a04a.bornes_de_recharge where horaires is null;
+--aucun null 
+
+                            </code></pre>
+                            </div>
+
+                            <!-- Kelian — coin bas gauche -->
+                            <div>
+                                <pre><code class="theme-kelian" data-trim data-noescape data-language="sql">
+--kelian : s2a05a
+SELECT
+    distinct contact_operateur
+FROM
+    s2a04a.bornes_de_recharge
+WHERE
+    telephone_operateur IS NULL;
+
+SELECT
+    contact_operateur,
+    telephone_operateur,
+    nom_enseigne,
+    nom_station
+FROM
+    s2a04a.bornes_de_recharge;
+
+SELECT
+    distinct telephone_operateur
+FROM
+    s2a04a.bornes_de_recharge
+WHERE
+    contact_operateur = 'MAIL_OPERATEUR'
+    AND telephone_operateur IS NOT NULL;
+
+UPDATE s2a04a.bornes_de_recharge
+SET
+    telephone_operateur = 'INVENTÉ OU REPRIT'
+WHERE
+    contact_operateur = 'MAIL_OPERATEUR';
+
+COMMIT;
+
+
+                            </code></pre>
+                            </div>
+
+                            <!-- Mathys — coin bas droit -->
+                            <div>
+                                <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
+
+--Mathys : s2a03b
+--aucun null
+select * from s2a04a.bornes_de_recharge where paiement_autre is null;
+select * from s2a04a.bornes_de_recharge where paiement_cb is null;
+
+update  s2a04a.bornes_de_recharge  set paiement_cb='false'
+    where  paiement_cb  is null;
+    commit;
+
+update  s2a04a.bornes_de_recharge  set paiement_autre='true'
+    where  paiement_autre  is null;
+    commit;
+    
+select * from s2a04a.bornes_de_recharge where horaires is null;
+--aucun null 
+                            </code></pre>
+                            </div>
+
+                        </div>
+                    </section>
+
+                </section>
+                <section>
+
+                    <section>
+                        <h2>Partie 2</h2>
+                        <h3>Séparation des tables</h3>
+                        <p>Séparation des données en plusieurs tables pour.
+                            chaque etudiant</p>
+                    </section>
+                    <section>
+                        <h2>Shema relationnel</h2>
+                        <img src="image/MCD.png"
+                            alt="Schéma relationnel"
+                            style="width: 80%; height: auto;">
+                    </section>
+                    <section data-background-image="image/fond/Adrien_Fond.png"
+                        data-background-size="cover" class="theme-adrien">
+                        <div class="grid-6etudiants">
+
+                            <div class="grid-title-box">
+                                <h2 style="margin: 0;">Partie 2</h2>
+                                <h3 style="font-size: 0.6em !important;">Séparation des tables</h3>
+                               
+                            </div>
+
+                            <div class="theme-lyam">
+                                <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
+--Lyam : Table Region, Departement, Commune
+
+-- TABLE REGION --
+grant select on region to s2a04a;
+drop table if exists region;
+
+create table region (
+    code number(5) primary key,
+    libelle varchar2(128)
+);
+
+insert into region ( code, libelle )
+    select d    istinct code_region, libelle_region from s2a04a.bornes_de_recharge;
+
+
+-- TABLE DEPARTEMENT --
+grant select on departement to s2a04a;
+drop table if exists departement;
+
+create table departement (
+    code number(5) generated always as identity primary key,
+    libelle varchar2(128),
+    region_code references region ( code )
+);
+
+insert into departement ( libelle, region_code )
+    select distinct libelle_departement, code_region from s2a04a.bornes_de_recharge;
+
+
+-- TABLE COMMUNE --
+grant select on commune to s2a04a;
+drop table if exists commune;
+
+create table commune (
+    code_insee number(5) primary key,
+    libelle varchar2(128),
+    departement_code references departement ( code )
+);
+
+insert into commune ( code_insee, libelle, departement_code )
+    select distinct code_insee_commune, libelle_commune, d.code from s2a04a.bornes_de_recharge b join departement d on b.libelle_departement = d.libelle;
+
+grant select on Commune to  s2a05a;
+grant select on Commune to s2a03b;
+grant select on Commune to  s2a06b;
+grant select on Commune to s2a04a;
+
+grant select on Departement to  s2a05a;
+grant select on Departement to s2a03b;
+grant select on Departement to  s2a06b;
+grant select on Departement to s2a04a;
+
+grant select on Region to  s2a05a;
+grant select on Region to s2a03b;
+grant select on Region to  s2a06b;
+grant select on Region to s2a04a;
+
+            </code></pre>
+                            </div>
+
+                            <div class="theme-kelian">
+                                <pre><code class="theme-kelian" data-trim data-noescape data-language="sql">
+--kelian : Table Station
+
+create table station
+(
+    num_station number generated always as identity primary key,
+    nom_station varchar2(128),
+    implantation_station varchar2(128),
+    adresse_station varchar2(128),
+    code_insee_commune varchar2(26)
+);
+
+insert into station (nom_station, implantation_station, adresse_station,code_insee_commune) 
+select distinct 
+    s.nom_station, 
+    s.implantation_station, 
+    s.adresse_station,
+    s.code_insee_commune
+from s2a04a.bornes_de_recharge s;
+
+-- Optimisation possible en fesant des role
+grant select on Station to  s2a05a;
+grant select on Station to s2a03b;
+grant select on Station to  s2a06b;
+grant select on Station to s2a04a;
+            </code></pre>
+                            </div>
+
+                            <div class="theme-julien">
+                                <pre><code class="theme-julien" data-trim data-noescape data-language="sql">
+
+--julien : Table Operateur
+create table operateurs
+(
+    num_operateur number generated always as identity primary key,
+    nom_operateur varchar2(128),
+    contact_operateur varchar2(128),
+    telephone_operateur varchar2(26)
+);
+
+drop table operateurs;
+
+insert into operateurs (nom_operateur, contact_operateur, telephone_operateur) 
+select distinct 
+    b.nom_operateur, 
+    b.contact_operateur, 
+    b.telephone_operateur 
+from s2a04a.bornes_de_recharge b;
+
+select * from operateurs;
+
+grant select on operateurs to s2a04a;
+grant select on operateurs to s2a14b;
+grant select on operateurs to s2a03b;
+grant select on operateurs to s2a05a;
+            </code></pre>
+                            </div>
+
+                            <div class="theme-mathys">
+                                <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
+-- Mathys : Table Amenageur
+create table Amenageur(
+    nom_amenageur VARCHAR(128),
+    siren NUMBER (38),
+    contact_amenageur VARCHAR(128)
+); 
+drop table Amenageur;
+
+insert into Amenageur(
+    nom_amenageur,
+    siren,
+    contact_amenageur)
+    select distinct nom_amenageur, siren_amenageur, contact_amenageur
+    from s2a04a.bornes_de_recharge;
+   
+grant select on Amenageur to s2a12b;
+
+            </code></pre>
+                            </div>
+
+                            <div class="theme-adrien">
+                                <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
+--Adrien : Table Borne de recharge
+create table  bornes_de_recharge as (
+    select * from s2a01b.borne_de_recharge
+);
+
+
+
+grant select on bornes_de_recharge2 to s2a07a;
+
+grant select on borne to s2a09a;
+ 
+drop table borne;
+drop table borne_la;
+drop table bornes_de_recharge;
+drop table commune_la;
+
+
+--- modifier bornes_de_recharge ===================
+ALTER Table bornes_de_recharge ADD  num_station Number(5);
+ALTER Table bornes_de_recharge ADD  num_operateur Number(5);
+ALTER Table bornes_de_recharge ADD  num_amenageur Number(5);
+
+
+UPDATE bornes_de_recharge b
+SET b.num_amenageur = (
+    SELECT a.num_amenageur 
+    FROM s2a03b.amenageur a
+    
+    WHERE a.siren= b.siren_amenageur
+      AND a.nom_amenageur = b.nom_amenageur
+      and  a.CONTACT_AMENAGEUR = b.CONTACT_AMENAGEUR
+      AND ROWNUM = 1              
+)
+WHERE EXISTS (
+    SELECT 1 
+    FROM s2a03b.amenageur a 
+   WHERE a.siren= b.siren_amenageur
+      AND a.nom_amenageur = b.nom_amenageur
+      and  a.CONTACT_AMENAGEUR = b.CONTACT_AMENAGEUR
+);
+commit;
+
+UPDATE bornes_de_recharge b
+SET b.num_station = (
+    SELECT n.num_station 
+    FROM s2a14b.station n 
+    WHERE n.nom_station           = b.nom_station 
+      AND n.implantation_station  = b.implantation_station 
+      AND n.code_insee_commune    = b.code_insee_commune
+      AND ROWNUM = 1              
+)
+WHERE EXISTS (
+    SELECT 1 
+    FROM s2a14b.station n 
+    
+    WHERE n.nom_station           = b.nom_station 
+      AND n.implantation_station  = b.implantation_station 
+      AND n.code_insee_commune    = b.code_insee_commune
+);
+commit;
+
+
+UPDATE bornes_de_recharge b
+SET b.num_operateur = (
+    SELECT n.num_operateur 
+    FROM s2a06b.operateurs n
+    WHERE n.nom_operateur          = b.nom_operateur
+      AND n.contact_operateur = b.contact_operateur
+      AND n.telephone_operateur   = b.telephone_operateur
+      AND ROWNUM = 1              
+)
+WHERE EXISTS (
+    SELECT 1 
+    FROM  s2a06b.operateurs n
+    WHERE n.nom_operateur          = b.nom_operateur
+      AND n.contact_operateur = b.contact_operateur
+      AND n.telephone_operateur   = b.telephone_operateur
+);
+commit;
+--============
+
+--===   Drop des collones pas nécésaire =======================
+ALTER TABLE bornes_de_recharge DROP COLUMN siren_AMENAGEUR;
+ALTER TABLE bornes_de_recharge DROP COLUMN nom_AMENAGEUR;
+ALTER TABLE bornes_de_recharge DROP COLUMN CONTACT_AMENAGEUR;
+ALTER TABLE bornes_de_recharge DROP COLUMN CONTACT_OPERATEUR;
+ALTER TABLE bornes_de_recharge DROP COLUMN TELEPHONE_OPERATEUR;
+ALTER TABLE bornes_de_recharge DROP COLUMN NOM_ENSEIGNE;
+ALTER TABLE bornes_de_recharge DROP COLUMN IMPLANTATION_STATION;
+ALTER TABLE bornes_de_recharge DROP COLUMN ADRESSE_STATION;
+ALTER TABLE bornes_de_recharge DROP COLUMN CODE_INSEE_COMMUNE;
+ALTER TABLE bornes_de_recharge DROP COLUMN NOMBRE_POINTS_DE_CHARGE;
+ALTER TABLE bornes_de_recharge DROP COLUMN LIBELLE_REGION;
+ALTER TABLE bornes_de_recharge DROP COLUMN CODE_REGION;
+ALTER TABLE bornes_de_recharge DROP COLUMN LIBELLE_DEPARTEMENT;
+ALTER TABLE bornes_de_recharge DROP COLUMN LIBELLE_COMMUNE;
+ALTER TABLE bornes_de_recharge DROP COLUMN NOM_OPERATEUR;
+ALTER TABLE bornes_de_recharge DROP COLUMN NOM_STATION;
+-- ==========================================
+
+--=== crée la table borne
+CREATE table Borne (
+  id NUMBER GENERATED ALWAYS AS IDENTITY (start with 1 increment by 1) primary key,
+  amenageur              Number(38),     
+  operateur              Number(38),
+  station                Number(38),
+  tranche_puissance      VARCHAR2(26),
+  horaires               VARCHAR2(256),
+  paiement_acte          VARCHAR2(26),
+  paiement_cb            VARCHAR2(26),
+  paiement_autre         VARCHAR2(26),
+  date_de_mise_a_jour    DATE,
+  date_mise_en_service   VARCHAR2(26),
+  PUISSANCE_NOMINALE     Number(38)
+);
+
+
+-- ====== insertion des colonnes 
+INSERT INTO Borne (
+  amenageur,
+  operateur,
+  station,
+  tranche_puissance,
+  horaires,
+  paiement_acte,
+  paiement_cb,
+  paiement_autre,
+  date_de_mise_a_jour,
+  date_mise_en_service,
+  PUISSANCE_NOMINALE 
+)
+SELECT
+  num_AMENAGEUR,        
+  NUM_OPERATEUR,
+  NUM_STATION,
+  TRANCHE_PUISSANCE,
+  HORAIRES,
+  PAIEMENT_ACTE,
+  PAIEMENT_CB,
+  PAIEMENT_AUTRE,
+  DATE_DE_MISE_À_JOUR,
+  DATE_MISE_EN_SERVICE,
+  PUISSANCE_NOMINALE 
+FROM bornes_de_recharge;
+
+
+
+
+grant select on Borne to s2a05a;
+grant select on Borne to s2a14b;
+grant select on Borne to s2a06b;
+grant select on Borne to s2a03b;
+
+
+            </code></pre>
+                            </div>
+
+                        </div>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2>Partie 3</h2>
+                        <h3>Séparation par departement</h3>
+                        <p>Séparation des données en plusieurs tables pour chaque
+                            département</p>
+                        </section>
+                    <section data-background-image="image/fond/Adrien_Fond.png" data-background-size="cover" class="theme-adrien">
+    <div class="grid-6etudiants">
+        
+        <div class="grid-title-box">
+            <h2 style="margin: 0;">Partie 3</h2>
+            <h3 style="font-size: 0.6em !important;">Séparation des tables en départements</h3>
+        </div>
+
+        <div class="theme-adrien">
+            <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
+-- Adrien : Table Loire-Atlantique
+create table commune_LA
+    as
+    (select c.* from s2a14b.commune c 
+    join s2a14b.departement d
+    on c.departement_code = d.code
+    where d.libelle = 'Loire-Atlantique');
+
+CREATE table station_La as
+    (select * from s2a14b.station s
+    where s.code_insee_commune in 
+    (select code_insee from commune_la));
+
+create table borne_LA as select * from borne where station in (select num_station from station_LA);
+
+            </code></pre>
+        </div>
+
+        <div class="theme-julien">
+            <pre><code class="theme-julien" data-trim data-noescape data-language="sql">
+-- Julien : Table Maine-et-Loire
+create table communeML as select c.code_insee, c.libelle, c.departement_code from s2a14b.commune c, s2a14b.departement d where c.departement_code=d.code and d.libelle = 'Maine-et-Loire';
+
+create table stationML as select * from s2a14b.station where code_insee_commune in (select code_insee from communeML);
+
+create table borneML as select * from s2a04a.borne where station in (select num_station from stationML);
+
+ 
+            </code></pre>
+        </div>
+
+        <div class="theme-kelian">
+            <pre><code class="theme-kelian" data-trim data-noescape data-language="sql">
+-- Kelian : Table sarthe
+CREATE TABLE commune_sa
+    AS
+        SELECT
+            c.*
+        FROM
+            s2a14b.commune c
+            JOIN s2a14b.departement d ON c.departement_code = d.code
+        WHERE
+            d.libelle = 'Sarthe';
+
+CREATE TABLE station_sa AS
+    SELECT
+        *    FROM
+        s2a14b.station s 
+    WHERE
+        s.code_insee_commune IN (SELECT code_insee_commune FROM commune_sa);
+
+CREATE TABLE borne_sa AS
+    SELECT
+        *    FROM
+        s2a04a.borne b
+    WHERE
+        b.station IN (SELECT num_station FROM station_sa);
+    
+            </code></pre>
+        </div>
+
+        <div class="theme-mathys">
+            <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
+-- Mathys : Table Mayenne
+create table communeMAY as
+    select c.code_insee, c.libelle, c.departement_code from s2a14b.commune c, s2a14b.departement d
+    where c.departement_code = d.code and d.libelle = 'Mayenne';
+
+
+
+
+select * from communeMAY;
+    
+create table stationMAY as
+    select * from s2a14b.station s 
+    where code_insee_commune in (select code_insee from communeMAY);
+
+
+
+select * from stationMAY;
+
+create table borneMAY as
+    select * from s2a04a.borne b
+    where station in (select num_station from stationMAY);
+
+            </code></pre>
+        </div>
+
+        <div class="theme-lyam">
+            <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
+-- Lyam : Table Vendée
+CREATE TABLE communeVe (
+code_insee_commune NUMBER(5) CONSTRAINT cle_inse_vendee PRIMARY KEY,
+libelle_commune VARCHAR2(128),
+departement_code number(2) 
+);
+
+insert into communeVe (code_insee_commune,libelle_commune,departement_code) 
+SELECT  c.code_insee,c.libelle,c.departement_code
+FROM commune c,Departement d
+where c.departement_code = d.code and d.libelle = 'Vendée';
+
+CREATE TABLE stationVe as select * From station where code_insee_commune in (select code_insee_commune from communeVe);
+CREATE TABLE borneVe as select * From s2a04a.borne where station in (select num_station from stationVe);
+
+            </code></pre>
+        </div>
+
+
+    </div>
+</section>
+                    
+                </section>
+                <section>
+    <section>
+        <h2>Partie 4</h2>
+        <h3>Interrogation de la base</h3>
+        <p>Analyses statistiques et répartition des données par département.</p>
+    </section>
+
+    <section data-background-image="image/fond/Adrien_Fond.png" data-background-size="cover" class="theme-adrien">
+        <div class="grid-4etudiants">
+            
+            <div class="grid-title-box">
+                <h2 style="margin: 0; font-size: 0.8em !important;">Partie 4</h2>
+                <ul style="font-size: 0.35em; color: #bc8cf2; list-style-type: none; padding: 0; text-align: left;">
+                    <li> <h3 style="font-size: 0.9em !important;">• Lyam : Affichez pour chaque opérateur le nombre de prisespar département.</h3></li>
+                    <h3></h3>
+                    <li> <h3 style="font-size: 0.9em !important;">• Adrien : Affichez pour chaque département  la répartition des prises. </h3></li>
+                    <h3></h3>
+                    <li> <h3 style="font-size: 0.9em !important;">• Mathys : Le nombre d'amenageur different par departement</h3></li>
+                </ul>
+            </div>
+
+            <div class="theme-lyam">
+                <pre><code class="theme-lyam" data-trim data-noescape data-language="sql">
+-- Lyam : Question 1 : Affichez pour chaque opérateur le nombre de prises(points de charge) par département.
+
+
+SELECT 
+    o.nom_operateur,
+    (SELECT COUNT(*) FROM borneve b WHERE b.operateur = o.num_operateur) AS VE,
+    (SELECT COUNT(*) FROM s2a04a.borne_La b WHERE b.operateur = o.num_operateur) AS LA,
+    (SELECT COUNT(*) FROM s2a05a.borne_SA b WHERE b.operateur = o.num_operateur) AS SA,
+    (SELECT COUNT(*) FROM s2a03b.bornemay b WHERE b.operateur = o.num_operateur) AS MAY,
+    (SELECT COUNT(*) FROM s2a06b.borneml b WHERE b.operateur = o.num_operateur) AS ML
+FROM 
+    s2a06b.operateurs o;
+                </code></pre>
+            </div>
+
+            <div class="theme-adrien">
+                <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
+-- Adrien : Question 3: Affichez pour chaque département  la répartition des prises. C’est à dire en fonction des valeurs de la puissance nominale(22, 50, 43, 60, 120,….). Dans ce cas vous prenez les 15 meilleurs prises qui sont installées. 
+
+
+SELECT b.PUISSANCE_NOMINALE, d.libelle
+FROM s2a14b.departement d
+JOIN (
+    SELECT code_insee, departement_code FROM s2a05a.commune_sa
+    UNION ALL
+    SELECT code_insee_commune, departement_code FROM s2a14b.communeve
+    UNION ALL
+    SELECT code_insee, departement_code FROM s2a06b.communeml
+    UNION ALL
+    SELECT code_insee, departement_code FROM s2a03b.communeMAY
+    UNION ALL
+    SELECT code_insee, departement_code FROM commune_la
+) c
+ON c.departement_code = d.code
+
+JOIN (
+    SELECT code_insee_commune, num_station FROM s2a05a.station_sa
+    UNION ALL
+    SELECT code_insee_commune, num_station FROM s2a14b.stationve
+    UNION ALL
+    SELECT code_insee_commune, num_station FROM s2a06b.stationml
+    UNION ALL
+    SELECT code_insee_commune, num_station FROM s2a03b.stationMAY
+    UNION ALL
+    SELECT code_insee_commune, num_station FROM station_la
+) s
+ON s.code_insee_commune = c.code_insee
+
+JOIN (
+    SELECT PUISSANCE_NOMINALE, station FROM s2a05a.borne_sa
+    UNION ALL
+    SELECT PUISSANCE_NOMINALE, station FROM s2a14b.borneve
+    UNION ALL
+    SELECT PUISSANCE_NOMINALE, station FROM s2a06b.borneml
+    UNION ALL
+    SELECT PUISSANCE_NOMINALE, station FROM s2a03b.borneMAY
+    UNION ALL
+    SELECT PUISSANCE_NOMINALE, station FROM borne_la
+) b
+ON b.station = s.num_station
+order by PUISSANCE_NOMINALE desc
+FETCH FIRST 15 ROWS ONLY;
+
+                </code></pre>
+            </div>
+
+            <div class="theme-mathys">
+                <pre><code class="theme-mathys" data-trim data-noescape data-language="sql">
+-- Mathys : Question 10 : le nombre d'amenageur different par departement
+
+
+
+SELECT distinct  d.libelle, count(distinct a.nom_amenageur) as nb_amenageur_dep
+FROM s2a14b.departement d
+JOIN (
+    SELECT code_insee, departement_code FROM s2a05a.commune_sa
+    UNION ALL
+    SELECT code_insee_commune, departement_code FROM s2a14b.communeve
+    UNION ALL
+    SELECT code_insee, departement_code FROM s2a06b.communeml
+    UNION ALL
+    SELECT code_insee, departement_code FROM communeMAY
+    UNION ALL
+    SELECT code_insee, departement_code FROM s2a04a.commune_la
+) c
+ON c.departement_code = d.code
+
+JOIN (
+    SELECT code_insee_commune, num_station FROM s2a05a.station_sa
+    UNION ALL
+    SELECT code_insee_commune, num_station FROM s2a14b.stationve
+    UNION ALL
+    SELECT code_insee_commune, num_station FROM s2a06b.stationml
+    UNION ALL
+    SELECT code_insee_commune, num_station FROM stationMAY
+    UNION ALL
+    SELECT code_insee_commune, num_station FROM s2a04a.station_la
+) s
+ON s.code_insee_commune = c.code_insee
+JOIN (
+    SELECT amenageur, operateur, PUISSANCE_NOMINALE, station FROM s2a05a.borne_sa
+    UNION ALL
+    SELECT amenageur,operateur, PUISSANCE_NOMINALE, station FROM s2a14b.borneve
+    UNION ALL
+    SELECT amenageur, operateur, PUISSANCE_NOMINALE, station FROM s2a06b.borneml
+    UNION ALL
+    SELECT amenageur, operateur, PUISSANCE_NOMINALE, station FROM borneMAY
+    UNION ALL
+    SELECT amenageur, operateur,PUISSANCE_NOMINALE, station FROM s2a04a.borne_la
+) b
+ON b.station = s.num_station
+join amenageur a
+on a.num_amenageur = b.amenageur 
+group by  d.libelle
+order by nb_amenageur_dep desc;
+                </code></pre>
+            </div>
+
+        </div>
+    </section>
+    <section data-background-image="image/fond/Adrien_Fond.png" data-background-size="cover" class="theme-adrien">
+    <div class="grid-4etudiants">
+        
+        
+        <div class="grid-title-box">
+                <h2 style="margin: 0; font-size: 0.8em !important;">Partie 4</h2>
+                <ul style="font-size: 0.35em; color: #bc8cf2; list-style-type: none; padding: 0; text-align: left;">
+                    <li> <h3 style="font-size: 0.9em !important;">• Lyam : Affichez pour chaque opérateur le nombre de prisespar département.</h3></li>
+                    <h3></h3>
+                    <li> <h3 style="font-size: 0.9em !important;">• Adrien : Affichez pour chaque département  la répartition des prises. </h3></li>
+                    <h3></h3>
+                    <li> <h3 style="font-size: 0.9em !important;">• Mathys : Le nombre d'amenageur different par departement</h3></li>
+                </ul>
+            </div>
+
+        <div class="q-card img-card">
+            <span class="q-tag"></span>
+            <img src="image/Graphique/Lyam_1.png" alt="Description de l'image 1" class="grid-image">
+        </div>
+
+        <div class="q-card img-card">
+            <span class="q-tag"></span>
+            <img src="image/Graphique/Adrien_3.png" alt="Description de l'image 2" class="grid-image">
+        </div>
+
+        <div class="q-card img-card">
+            <span class="q-tag"></span>
+            <img src="image/Graphique/Mathys_10_2.png" alt="Description de l'image 3" class="grid-image">
+        </div>
+
+    </div>
+</section>
+</section>
+<section>
+    <section>
+        <h2>Partie 5</h2>
+        <h3>Requette par des vues </h3>
+        <p>idem que la question precedente mais chacun fait les requette avec des vu sur tous </p>
+    </section>
+    <section data-background-image="image/fond/Adrien_Fond.png" data-background-size="cover" class="theme-adrien">
+        <h2>Partie 5</h2>
+        <h3>Requette par des vues </h3>
+       
+        <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
+            --
+
+
+        </code></pre></section>
+</section>
+<section>
+    <h2>Conclusion</h2>
+    <p>Conclusion du projet et l'apport pour tous</p>
+</section>
+
+                </div>
+            </div>
+
+            <!-- Scripts Reveal.js -->
+            <script src="reveal.js-master/dist/reveal.js"></script>
+            <script src="reveal.js-master/dist/plugin/highlight.js"></script>
+
+            <script>
+        Reveal.initialize({
+            hash: true,
+            transition: 'convex',
+            backgroundTransition: 'fade',
+            plugins: [RevealHighlight]
+        });
+
+        // Masquer le footer sur la slide de titre, l'afficher sur les autres
+        Reveal.on('slidechanged', event => {
+            if (event.indexh === 0 && event.indexv === 0) {
+                footer.style.opacity = '0';
+                footer.style.pointerEvents = 'none';
+            } else {
+                footer.style.opacity = '1';
+                footer.style.pointerEvents = 'auto';
+            }
+        });
+    </script>
+
+        </body>
+    </html>

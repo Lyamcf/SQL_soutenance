@@ -1012,7 +1012,174 @@ order by nb_amenageur_dep desc;
                         <h3>Requette par des vues </h3>
 
                         <pre><code class="theme-adrien" data-trim data-noescape data-language="sql">
-            --
+            --==================================================
+
+create view Question_1_Adrien as
+SELECT o.nom_operateur, 'Loire-Atlantique' AS DEPARTEMENT, COUNT(*) AS NB_PRISES
+FROM borne_La b
+JOIN s2a06b.operateurs o ON b.operateur = o.num_operateur 
+GROUP BY o.nom_operateur
+ORDER BY nom_operateur, DEPARTEMENT;
+
+--==================================================
+create view Question_2_Adrien as
+SELECT distinct
+    o.nom_operateur,
+    b.PUISSANCE_NOMINALE ,
+    count(*) as nb_prises
+FROM (
+    SELECT distinct libelle, code_insee, departement_code FROM commune_la
+) c
+
+JOIN (
+    SELECT distinct code_insee_commune, num_station FROM station_la
+) s
+ON s.code_insee_commune = c.code_insee
+
+JOIN (
+    SELECT distinct operateur, PUISSANCE_NOMINALE, station FROM borne_la
+) b
+ON b.station = s.num_station
+Join s2a06b.operateurs o
+on b.operateur = num_operateur
+group by o.nom_operateur,b.PUISSANCE_NOMINALE;
+
+
+--==================================================
+
+create view Question_3_Adrien as 
+SELECT b.PUISSANCE_NOMINALE, d.libelle
+FROM s2a14b.departement d
+JOIN  commune_la c
+ON c.departement_code = d.code
+JOIN  station_la s
+ON s.code_insee_commune = c.code_insee
+JOIN borne_la b
+ON b.station = s.num_station
+order by PUISSANCE_NOMINALE desc
+FETCH FIRST 15 ROWS ONLY; 
+
+--==================================================
+
+create view Question_4_Adrien as 
+SELECT distinct
+    c.libelle,
+    b.station,
+    b.PUISSANCE_NOMINALE
+FROM commune_la c
+JOIN  station_la s
+ON s.code_insee_commune = c.code_insee
+JOIN borne_la b
+ON b.station = s.num_station
+WHERE b.PUISSANCE_NOMINALE = (
+    SELECT distinct MAX(b2.PUISSANCE_NOMINALE)
+    FROM  borne_la b2
+    JOIN  station_la s2
+    ON s2.num_station = b2.station
+    WHERE s2.code_insee_commune = c.code_insee)
+    ORDER BY b.PUISSANCE_NOMINALE DESC;
+    
+--==================================================
+create view Question_7_Adrien as
+select d.libelle, count(*) as nb 
+from (
+    SELECT station FROM borne_la
+) b
+join (
+    SELECT code_insee_commune, num_station FROM station_la
+) s on b.station = s.num_station
+join (
+    SELECT code_insee, departement_code FROM commune_la
+) c on s.code_insee_commune = c.code_insee
+join s2a14b.departement d on d.code = c.departement_code
+group by d.libelle
+order by nb desc;
+
+--==================================================
+
+create view Question_8_Adrien as
+select d.libelle, d.code,
+    (select count(*) from 
+    (  select st.code_insee_commune from s2a04a.borne_la b
+        join s2a04a.station_la st on b.station = st.num_station
+        where b.horaires = '24/7'
+) t 
+    join s2a14b.commune c on t.code_insee_commune = c.code_insee
+    where c.departement_code = d.code
+    ) as nb
+from s2a14b.departement d;
+
+
+
+
+
+--==================================================
+    
+create view Question_9_Adrien as 
+Select distinct o.nom_operateur, d.libelle, count(*) as implemanter
+    from s2a06b.operateurs o, s2a14b.departement d,
+    
+    borne_La b, 
+    station_la s, 
+    commune_la c
+    
+    where o.num_operateur = b.operateur
+    and b.station = s.num_station
+    and s.code_insee_commune = c.code_insee
+    and c.departement_code = d.code
+    group by o.nom_operateur, d.libelle
+    order by implemanter desc
+    fetch first 1 row only;
+
+
+--==================================================
+
+create view Question_10_Adrien as
+Select distinct d.libelle, count(distinct a.nom_amenageur ) as nb_amenageur_dep
+    from s2a03b.amenageur a, s2a14b.departement d, 
+    
+    borne_La b, 
+    station_la s, 
+    commune_la c
+    
+    where a.num_amenageur = b.amenageur 
+    and b.station = s.num_station
+    and s.code_insee_commune = c.code_insee
+    and c.departement_code = d.code
+    group by  d.libelle
+    order by nb_amenageur_dep desc;
+
+
+
+
+select * from ( 
+select * from s2a04a.Question_3_Lyam
+union all
+select * from Question_3_Adrien
+union all
+select * from s2a05a.Question_3_Kelian
+union all
+select * from s2a06b.Question_3_Julien
+union all
+select * from s2a03b.Question_3_Mathys
+)
+order by PUISSANCE_NOMINALE desc
+FETCH FIRST 15 ROWS ONLY ;
+
+select * from ( 
+select * from s2a04a.Question_4_Lyam
+union all
+select * from Question_4_Adrien
+union all
+select * from s2a05a.Question_4_Kelian
+union all
+select * from s2a06b.Question_4_Julien
+union all
+select * from s2a03b.Question_4_Mathys
+)
+ORDER BY b.PUISSANCE_NOMINALE DESC;
+
+
 
 
         </code></pre></section>
